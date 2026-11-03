@@ -1,10 +1,10 @@
 package com.jarvis.ai.ui.settings
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -49,37 +50,78 @@ import com.jarvis.ai.ui.theme.TextSecondary
 import kotlin.math.roundToInt
 
 @Composable
-private fun LangChip(label: String, selected: Boolean, onClick: () -> Unit) {
-    val bg = if (selected) NeonCyan.copy(alpha = 0.18f) else Color(0x14FFFFFF)
-    val borderColor = if (selected) NeonCyan else Color(0x1AFFFFFF)
-    val textColor = if (selected) NeonCyan else TextSecondary
-    Row(
-        modifier = Modifier
-            .padding(end = Space.sm),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .background(bg, androidx.compose.foundation.shape.RoundedCornerShape(20.dp))
-                .then(
-                    Modifier
-                        .border(
-                            width = 1.dp,
-                            color = borderColor,
-                            shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp)
+fun SettingsScreen(
+    onBack: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel()
+) {
+    val ui by viewModel.state.collectAsStateWithLifecycle()
+    val prefs by viewModel.preferences.collectAsStateWithLifecycle()
+    var showEraseDialog by remember { mutableStateOf(false) }
+
+    GradientBackground {
+        Column(modifier = Modifier.fillMaxSize()) {
+            JarvisTopBar(title = "Settings", onBack = onBack)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(Space.lg),
+                verticalArrangement = Arrangement.spacedBy(Space.lg)
+            ) {
+                // API key
+                GlassCard(modifier = Modifier.fillMaxWidth(), glowCyan = ui.apiVerified) {
+                    Column(modifier = Modifier.padding(Space.lg)) {
+                        Text(
+                            text = "Gemini API Key",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = TextPrimary
                         )
-                )
-                .clickable(onClick = onClick)
-                .padding(horizontal = 14.dp, vertical = 8.dp)
-        ) {
-            Text(
-                text = label,
-                color = textColor,
-                style = MaterialTheme.typography.labelLarge
-            )
-        }
-    }
-}
+                        Spacer(Modifier.height(Space.sm))
+                        Text(
+                            text = if (ui.hasApiKey) "Key configured · stored encrypted"
+                            else "No key configured",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (ui.hasApiKey) SuccessGreen else TextSecondary
+                        )
+                        Spacer(Modifier.height(Space.md))
+                        TextField(
+                            value = ui.apiKeyInput,
+                            onValueChange = viewModel::onApiKeyChange,
+                            placeholder = { Text("Paste new key to replace") },
+                            singleLine = true,
+                            visualTransformation = PasswordVisualTransformation(),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedTextColor = TextPrimary,
+                                unfocusedTextColor = TextPrimary
+                            )
+                        )
+                        if (ui.apiError != null) {
+                            Spacer(Modifier.height(Space.xs))
+                            Text(
+                                text = ui.apiError!!,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = ErrorRed
+                            )
+                        }
+                        Spacer(Modifier.height(Space.md))
+                        PrimaryButton(
+                            text = if (ui.verifying) "Verifying…" else "Save & Verify",
+                            onClick = viewModel::saveApiKey,
+                            enabled = !ui.verifying
+                        )
+                        if (ui.hasApiKey) {
+                            Spacer(Modifier.height(Space.sm))
+                            TextButton(onClick = viewModel::removeApiKey) {
+                                Text("Remove key", color = ErrorRed)
+                            }
+                        }
+                    }
+                }
+
                 // Voice prefs
                 GlassCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(Space.lg)) {
@@ -223,42 +265,23 @@ private fun LangChip(label: String, selected: Boolean, onClick: () -> Unit) {
 @Composable
 private fun LangChip(label: String, selected: Boolean, onClick: () -> Unit) {
     val bg = if (selected) NeonCyan.copy(alpha = 0.18f) else Color(0x14FFFFFF)
-    val border = if (selected) NeonCyan else Color(0x1AFFFFFF)
-    Row(
+    val borderColor = if (selected) NeonCyan else Color(0x1AFFFFFF)
+    val textColor = if (selected) NeonCyan else TextSecondary
+    Box(
         modifier = Modifier
+            .background(bg, RoundedCornerShape(20.dp))
+            .border(
+                width = 1.dp,
+                color = borderColor,
+                shape = RoundedCornerShape(20.dp)
+            )
             .clickable(onClick = onClick)
-            .padding(0.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 14.dp, vertical = 8.dp)
     ) {
-        androidx.compose.foundation.layout.Box(
-            modifier = Modifier
-                .then(
-                    Modifier
-                        .padding(end = Space.sm)
-                )
-        ) {
-            androidx.compose.foundation.layout.Box(
-                modifier = Modifier
-                    .padding(end = 0.dp)
-                    .then(Modifier)
-            ) {
-                androidx.compose.foundation.layout.Box(
-                    modifier = Modifier
-                        .padding(2.dp)
-                ) {
-                    androidx.compose.foundation.layout.Box(
-                        modifier = Modifier
-                            .padding(horizontal = 12.dp, vertical = 8.dp)
-                            .then(Modifier)
-                    ) {
-                        Text(
-                            text = label,
-                            color = if (selected) NeonCyan else TextSecondary,
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    }
-                }
-            }
-        }
+        Text(
+            text = label,
+            color = textColor,
+            style = MaterialTheme.typography.labelLarge
+        )
     }
 }
