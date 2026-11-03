@@ -1,23 +1,25 @@
 package com.jarvis.ai.data.local.db
 
 import androidx.room.TypeConverter
-import kotlinx.serialization.json.Json
 
+/**
+ * Room type converters for JARVIS AI.
+ *
+ * NOTE: Current entities (ConversationEntity, MessageEntity, ReminderEntity)
+ * do not use List<String> fields, so these converters are kept simple and
+ * dependency-free. If you later add a List<String> column, replace these
+ * with a JSON-backed implementation.
+ */
 class Converters {
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 
     @TypeConverter
-    fun fromList(value: List<String>?): String =
-        json.encodeToString(ListSerializerAny, value ?: emptyList())
+    fun fromStringList(value: List<String>?): String {
+        return value?.joinToString(separator = "\u001F") ?: ""
+    }
 
     @TypeConverter
-    fun toList(value: String?): List<String> =
-        if (value.isNullOrBlank()) emptyList() else runCatching {
-            json.decodeFromString(ListSerializerAny, value)
-        }.getOrDefault(emptyList())
-
-    companion object {
-        private val ListSerializerAny =
-            kotlinx.serialization.builtins.ListSerializer(kotlinx.serialization.builtins.serializer<String>())
+    fun toStringList(value: String?): List<String> {
+        if (value.isNullOrEmpty()) return emptyList()
+        return value.split("\u001F")
     }
 }
