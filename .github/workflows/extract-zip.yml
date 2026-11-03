@@ -10,34 +10,52 @@ permissions:
 jobs:
   extract:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract project ZIP
+      - name: Verify ZIP and extract
         run: |
           python3 - <<'PY'
           import zipfile
-          from pathlib import Path
+          from pathlib import Path, PurePosixPath
 
-          zips = list(Path(".").glob("JARVIS-AI-STRUCTURE.zip"))
-          if not zips:
-              raise SystemExit("ZIP file not found in repository root")
+          archive = Path("JARVIS-AI-STRUCTURE.zip")
+          if not archive.is_file():
+              raise SystemExit("ERROR: JARVIS-AI-STRUCTURE.zip not found in repository root")
 
-          with zipfile.ZipFile(zips[0]) as z:
+          destination = Path(".")
+
+          with zipfile.ZipFile(archive, "r") as z:
               for item in z.infolist():
-                  p = Path(item.filename)
-                  if p.is_absolute() or ".." in p.parts:
-                      raise SystemExit(f"Unsafe ZIP path: {item.filename}")
-              z.extractall(".")
+                  name = PurePosixPath(item.filename)
 
-          print("ZIP extracted successfully")
+                  if name.is_absolute() or ".." in name.parts:
+                      raise SystemExit(f"Unsafe ZIP path: {item.filename}")
+
+                  target = destination.joinpath(*name.parts)
+                  if not target.resolve().is_relative_to(destination.resolve()):
+                      raise SystemExit(f"Unsafe destination: {item.filename}")
+
+              z.extractall(destination)
+
+          project = Path("JARVIS-AI")
+          if not project.is_dir():
+              raise SystemExit("ERROR: ZIP did not create the JARVIS-AI folder")
+
+          print("ZIP extracted successfully.")
+          print("Project files:", sum(1 for p in project.rglob("*") if p.is_file()))
           PY
 
-      - name: Commit extracted files
+      - name: Commit extracted project
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add JARVIS-AI
-          git diff --cached --quiet || git commit -m "Extract JARVIS project structure"
-          git push
+          if git diff --cached --quiet; then
+            echo "No new project changes to commit."
+          else
+            git commit -m "Extract JARVIS project files"
+            git push
+          fi
