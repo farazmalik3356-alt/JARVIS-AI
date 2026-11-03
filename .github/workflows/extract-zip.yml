@@ -1,0 +1,43 @@
+
+name: Extract JARVIS ZIP
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract project ZIP
+        run: |
+          python3 - <<'PY'
+          import zipfile
+          from pathlib import Path
+
+          zips = list(Path(".").glob("JARVIS-AI-STRUCTURE.zip"))
+          if not zips:
+              raise SystemExit("ZIP file not found in repository root")
+
+          with zipfile.ZipFile(zips[0]) as z:
+              for item in z.infolist():
+                  p = Path(item.filename)
+                  if p.is_absolute() or ".." in p.parts:
+                      raise SystemExit(f"Unsafe ZIP path: {item.filename}")
+              z.extractall(".")
+
+          print("ZIP extracted successfully")
+          PY
+
+      - name: Commit extracted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add JARVIS-AI
+          git diff --cached --quiet || git commit -m "Extract JARVIS project structure"
+          git push
