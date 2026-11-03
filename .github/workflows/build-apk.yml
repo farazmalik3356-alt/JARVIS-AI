@@ -21,15 +21,22 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.9'
 
       - name: Generate Gradle wrapper if missing
         run: |
           if [ ! -f ./gradlew ]; then
-            echo "gradlew missing — generating wrapper"
-            gradle wrapper --gradle-version 8.9
+            echo "gradlew missing — generating wrapper with Gradle 8.9"
+            gradle wrapper --gradle-version 8.9 --distribution-type bin
           else
             echo "gradlew exists"
           fi
+
+      - name: Verify wrapper version
+        run: |
+          echo "=== Wrapper properties ==="
+          cat gradle/wrapper/gradle-wrapper.properties || echo "no wrapper props"
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
