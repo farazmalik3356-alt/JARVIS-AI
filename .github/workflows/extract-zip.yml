@@ -1,5 +1,5 @@
 
-name: Extract JARVIS ZIP
+name: Move JARVIS-AI Files to Root
 
 on:
   workflow_dispatch:
@@ -8,54 +8,38 @@ permissions:
   contents: write
 
 jobs:
-  extract:
+  move-files:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify ZIP and extract
+      - name: Move project files
         run: |
-          python3 - <<'PY'
-          import zipfile
-          from pathlib import Path, PurePosixPath
+          set -e
 
-          archive = Path("JARVIS-AI-STRUCTURE.zip")
-          if not archive.is_file():
-              raise SystemExit("ERROR: JARVIS-AI-STRUCTURE.zip not found in repository root")
+          if [ ! -d "JARVIS-AI" ]; then
+            echo "ERROR: JARVIS-AI folder not found"
+            exit 1
+          fi
 
-          destination = Path(".")
+          find JARVIS-AI -mindepth 1 -maxdepth 1 -exec mv -t . -- {} +
 
-          with zipfile.ZipFile(archive, "r") as z:
-              for item in z.infolist():
-                  name = PurePosixPath(item.filename)
+          rmdir JARVIS-AI
 
-                  if name.is_absolute() or ".." in name.parts:
-                      raise SystemExit(f"Unsafe ZIP path: {item.filename}")
+          echo "Project files moved to repository root."
 
-                  target = destination.joinpath(*name.parts)
-                  if not target.resolve().is_relative_to(destination.resolve()):
-                      raise SystemExit(f"Unsafe destination: {item.filename}")
-
-              z.extractall(destination)
-
-          project = Path("JARVIS-AI")
-          if not project.is_dir():
-              raise SystemExit("ERROR: ZIP did not create the JARVIS-AI folder")
-
-          print("ZIP extracted successfully.")
-          print("Project files:", sum(1 for p in project.rglob("*") if p.is_file()))
-          PY
-
-      - name: Commit extracted project
+      - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add JARVIS-AI
-          if git diff --cached --quiet; then
-            echo "No new project changes to commit."
-          else
-            git commit -m "Extract JARVIS project files"
+
+          git add -A
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Move JARVIS-AI project files to root"
             git push
+          else
+            echo "No changes to commit."
           fi
