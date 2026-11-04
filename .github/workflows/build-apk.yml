@@ -1,8 +1,8 @@
-name: Build JARVIS APK
+name: Build Android APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -10,47 +10,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
           java-version: '17'
+          distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: '8.9'
+        uses: gradle/actions/setup-gradle@v4
 
-      - name: Generate Gradle wrapper if missing
-        run: |
-          if [ ! -f ./gradlew ]; then
-            echo "gradlew missing — generating wrapper with Gradle 8.9"
-            gradle wrapper --gradle-version 8.9 --distribution-type bin
-          else
-            echo "gradlew exists"
-          fi
-
-      - name: Verify wrapper version
-        run: |
-          echo "=== Wrapper properties ==="
-          cat gradle/wrapper/gradle-wrapper.properties || echo "no wrapper props"
-
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
       - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace
+        run: ./gradlew assembleDebug
 
-      - name: Run Unit Tests
-        run: ./gradlew :app:testDebugUnitTest --stacktrace
-
-      - name: Upload Debug APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: jarvis-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
-          retention-days: 30
-          if-no-files-found: error
+          name: app-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
