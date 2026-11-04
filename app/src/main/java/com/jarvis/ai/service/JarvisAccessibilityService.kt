@@ -14,13 +14,14 @@ class JarvisAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        // Yahan AI ke commands receive honge (baad mein)
+        // Future AI commands will be handled here
     }
 
-    override fun onInterrupt() {}
+    override fun onInterrupt() {
+        // Service interrupted
+    }
 
-    // Yeh function AI ke kehne par kisi bhi text (button) par tap karega
-    fun tapOnText(text: String): Boolean {
+    fun performTap(text: String): Boolean {
         val root = rootInActiveWindow ?: return false
         val nodes = root.findAccessibilityNodeInfosByText(text)
         if (nodes.isNotEmpty()) {
@@ -30,7 +31,6 @@ class JarvisAccessibilityService : AccessibilityService() {
         return false
     }
 
-    // Yeh function kisi bhi app ko kholne ke liye (AI command ke zariye)
     fun openApp(packageName: String) {
         val intent = packageManager.getLaunchIntentForPackage(packageName)
         if (intent != null) {
