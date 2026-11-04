@@ -37,8 +37,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAppConfig(): AppConfig = AppConfig(
-        geminiModel = "gemini-3.8-flash",
-        geminiBaseUrl = "https://generativelanguage.googleapis.com/",
+        geminiModel = "meta-llama/llama-3.1-8b-instruct:free",
+        geminiBaseUrl = "https://openrouter.ai/api/v1/",
         isDebug = BuildConfig.DEBUG
     )
 }
