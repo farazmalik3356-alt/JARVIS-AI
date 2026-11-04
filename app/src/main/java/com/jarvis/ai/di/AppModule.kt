@@ -37,7 +37,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAppConfig(): AppConfig = AppConfig(
-        geminiModel = "openrouter/free",
+        geminiModel = "liquid/lfm-2.5-2.6b:free",
         geminiBaseUrl = "https://openrouter.ai/api/v1/",
         isDebug = BuildConfig.DEBUG
     )
