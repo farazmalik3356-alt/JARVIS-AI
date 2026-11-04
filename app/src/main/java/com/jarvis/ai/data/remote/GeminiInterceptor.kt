@@ -11,9 +11,12 @@ class GeminiInterceptor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val key = secureKeyStore.readApiKey()
             ?: throw JarvisError.NoApiKey()
+        
         val request = chain.request().newBuilder()
-            .addHeader("x-goog-api-key", key)
+            .addHeader("Authorization", "Bearer $key")
             .addHeader("Content-Type", "application/json")
+            .addHeader("HTTP-Referer", "https://github.com/farazmalik3356-alt/JARVIS-AI")
+            .addHeader("X-Title", "JARVIS AI")
             .build()
         return chain.proceed(request)
     }
