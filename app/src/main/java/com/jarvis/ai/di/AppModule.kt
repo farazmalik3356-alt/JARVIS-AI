@@ -37,7 +37,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAppConfig(): AppConfig = AppConfig(
-        geminiModel = "nvidia/nemotron-3.5-super-vl:free",
+        geminiModel = "openrouter/free",
         geminiBaseUrl = "https://openrouter.ai/api/v1/",
         isDebug = BuildConfig.DEBUG
     )
