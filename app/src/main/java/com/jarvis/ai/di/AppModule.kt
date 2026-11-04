@@ -37,7 +37,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAppConfig(): AppConfig = AppConfig(
-        geminiModel = "gemini-1.5-flash",
+        geminiModel = "gemini-2.0-flash",
         geminiBaseUrl = "https://generativelanguage.googleapis.com/",
         isDebug = BuildConfig.DEBUG
     )
