@@ -32,11 +32,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.jarvis.ai.service.AccessibilityHelper
 import com.jarvis.ai.ui.components.GlassCard
 import com.jarvis.ai.ui.components.GradientBackground
 import com.jarvis.ai.ui.components.JarvisTopBar
@@ -57,6 +59,8 @@ fun SettingsScreen(
     val ui by viewModel.state.collectAsStateWithLifecycle()
     val prefs by viewModel.preferences.collectAsStateWithLifecycle()
     var showEraseDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val isAccessibilityEnabled = AccessibilityHelper.isServiceEnabled(context)
 
     GradientBackground {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -68,17 +72,17 @@ fun SettingsScreen(
                     .padding(Space.lg),
                 verticalArrangement = Arrangement.spacedBy(Space.lg)
             ) {
-                // API key
+                // API key (OpenRouter)
                 GlassCard(modifier = Modifier.fillMaxWidth(), glowCyan = ui.apiVerified) {
                     Column(modifier = Modifier.padding(Space.lg)) {
                         Text(
-                            text = "Gemini API Key",
+                            text = "OpenRouter API Key",
                             style = MaterialTheme.typography.titleMedium,
                             color = TextPrimary
                         )
                         Spacer(Modifier.height(Space.sm))
                         Text(
-                            text = if (ui.hasApiKey) "Key configured · stored encrypted"
+                            text = if (ui.hasApiKey) "Key configured · stored encrypted" 
                             else "No key configured",
                             style = MaterialTheme.typography.bodySmall,
                             color = if (ui.hasApiKey) SuccessGreen else TextSecondary
@@ -87,7 +91,7 @@ fun SettingsScreen(
                         TextField(
                             value = ui.apiKeyInput,
                             onValueChange = viewModel::onApiKeyChange,
-                            placeholder = { Text("Paste new key to replace") },
+                            placeholder = { Text("Paste OpenRouter key (sk-or-...)") },
                             singleLine = true,
                             visualTransformation = PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -122,7 +126,30 @@ fun SettingsScreen(
                     }
                 }
 
-                // Voice prefs
+                // Accessibility (Phone Control)
+                GlassCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(Space.lg)) {
+                        Text(
+                            text = "Phone Control (Accessibility)",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = TextPrimary
+                        )
+                        Spacer(Modifier.height(Space.sm))
+                        Text(
+                            text = if (isAccessibilityEnabled) "Enabled · Jarvis can control your phone"
+                            else "Disabled · Tap to enable",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (isAccessibilityEnabled) SuccessGreen else TextSecondary
+                        )
+                        Spacer(Modifier.height(Space.md))
+                        PrimaryButton(
+                            text = if (isAccessibilityEnabled) "Manage Permission" else "Enable Permission",
+                            onClick = { AccessibilityHelper.openAccessibilitySettings(context) }
+                        )
+                    }
+                }
+
+                // Voice prefs (Hindi)
                 GlassCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(Space.lg)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -159,39 +186,11 @@ fun SettingsScreen(
                             horizontalArrangement = Arrangement.spacedBy(Space.sm),
                             modifier = Modifier.padding(top = Space.sm)
                         ) {
+                            LangChip("Hindi", prefs.speechLanguage == "hi-IN") {
+                                viewModel.setSpeechLanguage("hi-IN")
+                            }
                             LangChip("English", prefs.speechLanguage == "en-US") {
                                 viewModel.setSpeechLanguage("en-US")
-                            }
-                            LangChip("Urdu", prefs.speechLanguage == "ur-PK") {
-                                viewModel.setSpeechLanguage("ur-PK")
-                            }
-                        }
-                    }
-                }
-
-                // Preferred response language
-                GlassCard(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(Space.lg)) {
-                        Text(
-                            text = "Response language",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = TextPrimary
-                        )
-                        Spacer(Modifier.height(Space.sm))
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(Space.sm)
-                        ) {
-                            LangChip("Auto", prefs.preferredLanguage == "auto") {
-                                viewModel.setPreferredLanguage("auto")
-                            }
-                            LangChip("English", prefs.preferredLanguage == "en") {
-                                viewModel.setPreferredLanguage("en")
-                            }
-                            LangChip("Roman Urdu", prefs.preferredLanguage == "roman_ur") {
-                                viewModel.setPreferredLanguage("roman_ur")
-                            }
-                            LangChip("اردو", prefs.preferredLanguage == "ur") {
-                                viewModel.setPreferredLanguage("ur")
                             }
                         }
                     }
@@ -207,7 +206,7 @@ fun SettingsScreen(
                         )
                         Spacer(Modifier.height(Space.sm))
                         Text(
-                            text = "Conversation history is stored locally. Chat turns are sent to Google Gemini for inference only.",
+                            text = "Conversation history is stored locally. Chat turns are sent to OpenRouter for inference only.",
                             style = MaterialTheme.typography.bodySmall,
                             color = TextSecondary
                         )
@@ -233,7 +232,7 @@ fun SettingsScreen(
                             color = TextSecondary
                         )
                         Text(
-                            text = "Model: gemini-1.5-flash",
+                            text = "Model: openrouter/free",
                             style = MaterialTheme.typography.bodySmall,
                             color = TextSecondary
                         )
