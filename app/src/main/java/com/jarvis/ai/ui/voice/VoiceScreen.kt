@@ -102,32 +102,12 @@ fun VoiceScreen(
                 )
                 Spacer(Modifier.height(Space.md))
 
-<<<<<<< HEAD
-                val currentState = voiceState
-                val transcript: String
-                val kind: String
-                when (currentState) {
-                    is VoiceState.Processing -> {
-                        transcript = currentState.partial
-                        kind = "user"
-                    }
-                    is VoiceState.Speaking -> {
-                        transcript = currentState.text
-                        kind = "jarvis"
-                    }
-                    else -> {
-                        transcript = uiState.lastReply
-                        kind = "jarvis"
-                    }
-=======
                 val vs = voiceState
                 val (transcript, kind) = when (vs) {
                     is VoiceState.Processing -> vs.partial to "user"
                     is VoiceState.Speaking -> vs.text to "jarvis"
                     else -> uiState.lastReply.ifBlank { "" } to "jarvis"
->>>>>>> 8d1d7a7 (Fixed Retrofit converter, Java version, and Kotlin compile errors)
                 }
-
                 if (transcript.isNotBlank()) {
                     Text(
                         text = if (kind == "user") "You: $transcript" else transcript,

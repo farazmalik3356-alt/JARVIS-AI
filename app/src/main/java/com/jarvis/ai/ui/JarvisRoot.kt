@@ -1,15 +1,7 @@
 package com.jarvis.ai.ui
 
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-<<<<<<< HEAD
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-=======
-import androidx.compose.runtime.setValue
->>>>>>> 8d1d7a7 (Fixed Retrofit converter, Java version, and Kotlin compile errors)
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -29,6 +21,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import javax.inject.Inject
 
 @HiltViewModel
@@ -65,7 +59,9 @@ fun JarvisRoot(viewModel: RootViewModel = hiltViewModel()) {
 
 @Composable
 private fun RootFlow(viewModel: RootViewModel) {
-    var showApi by remember { mutableStateOf(false) }
+    var showApi by androidx.compose.runtime.remember {
+        androidx.compose.runtime.mutableStateOf(false)
+    }
     if (!showApi) {
         OnboardingScreen(
             onContinue = { showApi = true },
@@ -80,7 +76,9 @@ private fun RootFlow(viewModel: RootViewModel) {
 
 @Composable
 private fun MainFlow(prefs: UserPreferences) {
-    var route by remember { mutableStateOf(Root.Dashboard) }
+    var route by androidx.compose.runtime.remember {
+        androidx.compose.runtime.mutableStateOf(Root.Dashboard)
+    }
     when (route) {
         Root.Dashboard -> DashboardScreen(
             onOpenChat = { route = Root.Chat },
