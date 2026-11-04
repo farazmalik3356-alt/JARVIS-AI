@@ -102,11 +102,24 @@ fun VoiceScreen(
                 )
                 Spacer(Modifier.height(Space.md))
 
-                val (transcript, kind) = when (voiceState) {
-                    is VoiceState.Processing -> voiceState.partial to "user"
-                    is VoiceState.Speaking -> voiceState.text to "jarvis"
-                    else -> uiState.lastReply.ifBlank { "" } to "jarvis"
+                val currentState = voiceState
+                val transcript: String
+                val kind: String
+                when (currentState) {
+                    is VoiceState.Processing -> {
+                        transcript = currentState.partial
+                        kind = "user"
+                    }
+                    is VoiceState.Speaking -> {
+                        transcript = currentState.text
+                        kind = "jarvis"
+                    }
+                    else -> {
+                        transcript = uiState.lastReply
+                        kind = "jarvis"
+                    }
                 }
+
                 if (transcript.isNotBlank()) {
                     Text(
                         text = if (kind == "user") "You: $transcript" else transcript,
