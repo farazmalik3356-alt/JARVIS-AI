@@ -1,9 +1,9 @@
 package com.jarvis.ai.di
 
 import com.jarvis.ai.BuildConfig
+import com.jarvis.ai.data.local.secure.SecureKeyStore
 import com.jarvis.ai.data.remote.GeminiApi
 import com.jarvis.ai.data.remote.GeminiInterceptor
-import com.jarvis.ai.data.local.secure.SecureKeyStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
