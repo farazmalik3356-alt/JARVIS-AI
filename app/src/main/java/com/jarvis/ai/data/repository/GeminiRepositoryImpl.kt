@@ -52,9 +52,7 @@ class GeminiRepositoryImpl @Inject constructor(
         }
 
         if (!response.isSuccessful) {
-            val body = runCatching {
-                response.errorBody()?.string()
-            }.getOrNull()
+            val body = runCatching { response.errorBody()?.string() }.getOrNull()
             throw mapHttpError(response.code(), body ?: "")
         }
         val parsed = response.body() ?: throw JarvisError.MalformedResponse()
@@ -106,15 +104,15 @@ class GeminiRepositoryImpl @Inject constructor(
         systemPrompt: String,
         history: List<ChatTurn>,
         userMessage: String
-    ): Flow<StreamEvent> = flow {
+    ): Flow<GeminiRepository.StreamEvent> = flow<GeminiRepository.StreamEvent> {
         try {
             val text = generate(systemPrompt, history, userMessage)
-            emit(StreamEvent.Token(text))
-            emit(StreamEvent.Done)
+            emit(GeminiRepository.StreamEvent.Token(text))
+            emit(GeminiRepository.StreamEvent.Done)
         } catch (e: JarvisError) {
-            emit(StreamEvent.Failed(e))
+            emit(GeminiRepository.StreamEvent.Failed(e))
         } catch (e: Exception) {
-            emit(StreamEvent.Failed(JarvisError.Unknown(e)))
+            emit(GeminiRepository.StreamEvent.Failed(JarvisError.Unknown(e)))
         }
     }.flowOn(Dispatchers.IO)
 
