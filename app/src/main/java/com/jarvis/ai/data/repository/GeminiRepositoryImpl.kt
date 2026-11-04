@@ -3,6 +3,7 @@ package com.jarvis.ai.data.repository
 import com.jarvis.ai.core.JarvisError
 import com.jarvis.ai.data.remote.GeminiApi
 import com.jarvis.ai.di.AppConfig
+import com.jarvis.ai.data.repository.GeminiRepository.StreamEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -86,7 +87,7 @@ class GeminiRepositoryImpl @Inject constructor(
             val response = client.newCall(request).execute()
             if (response.isSuccessful) Result.success(Unit)
             else {
-                val code = response.code()
+                val code = response.code
                 val mapped = when (code) {
                     401, 403 -> JarvisError.InvalidApiKey()
                     429 -> JarvisError.RateLimited()
