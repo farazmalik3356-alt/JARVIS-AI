@@ -30,10 +30,8 @@ android {
                 "proguard-rules.pro"
             )
         }
-        // Keep the debug APK on the same application ID as the app users install.
-        // This lets Android treat it as JARVIS AI rather than a separate *.debug app.
         debug {
-            applicationIdSuffix = ""
+            applicationIdSuffix = ".debug"
         }
     }
 
@@ -68,6 +66,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation.compose)
@@ -115,6 +114,7 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.mockwebserver)
 
@@ -124,5 +124,5 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.52")
-    kspAndroidTest(libs.hilt.compiler)
+    kspAndroidTest("com.google.dagger:hilt-compiler:2.52")
 }
