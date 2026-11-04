@@ -1,0 +1,11 @@
+# Gradle
+.gradle/
+build/
+app/build/
+
+# Backups
+*.bak
+
+# Local config
+local.properties
+.DS_Store
