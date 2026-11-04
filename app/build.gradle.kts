@@ -102,7 +102,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
     implementation(libs.retrofit)
-    implementation(libs.retrofit.kotlinx)
+    implementation("com.squareup.retrofit2:converter-kotlinx-serialization:2.11.0")
 
     // Images
     implementation(libs.coil.compose)

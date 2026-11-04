@@ -8,6 +8,7 @@ import com.jarvis.ai.data.remote.dto.GenerationConfig
 import com.jarvis.ai.data.remote.dto.Part
 import com.jarvis.ai.data.remote.dto.SafetySetting
 import com.jarvis.ai.di.AppConfig
+import com.jarvis.ai.data.repository.GeminiRepository.StreamEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

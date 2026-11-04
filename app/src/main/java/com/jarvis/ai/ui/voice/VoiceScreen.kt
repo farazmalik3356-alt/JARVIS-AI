@@ -102,6 +102,7 @@ fun VoiceScreen(
                 )
                 Spacer(Modifier.height(Space.md))
 
+<<<<<<< HEAD
                 val currentState = voiceState
                 val transcript: String
                 val kind: String
@@ -118,6 +119,13 @@ fun VoiceScreen(
                         transcript = uiState.lastReply
                         kind = "jarvis"
                     }
+=======
+                val vs = voiceState
+                val (transcript, kind) = when (vs) {
+                    is VoiceState.Processing -> vs.partial to "user"
+                    is VoiceState.Speaking -> vs.text to "jarvis"
+                    else -> uiState.lastReply.ifBlank { "" } to "jarvis"
+>>>>>>> 8d1d7a7 (Fixed Retrofit converter, Java version, and Kotlin compile errors)
                 }
 
                 if (transcript.isNotBlank()) {
